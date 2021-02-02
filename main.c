@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PC_RESET 0xFFFC
 #define SP_RESET 0x0100
@@ -15,8 +16,14 @@
 
 #define MAX_MEMORY 1024 * 64
 
+#define ASM_SEP ';'
+#define ASM_INSTR_BUF_SIZE 4095
+
+#define NULL_TERM '\0'
+
 typedef unsigned char byte;
-typedef unsigned short word;
+typedef unsigned short word; // technically only a "half-word" as this is 2 bytes on most platforms instead of 4 bytes
+                             // which one would normally call a "word", but that is okay for now
 
 struct cpu {
     word m_program_counter;
@@ -29,19 +36,38 @@ struct mem {
     byte m_data[MAX_MEMORY];
 } mem;
 
-void init_mem() {
-    for (unsigned int i = 0; i < MAX_MEMORY; i++)
-        mem.m_data[i] = BYTE_RESET;
-}
-
 void reset() {
     cpu.m_program_counter = PC_RESET;
     cpu.m_stack_pointer = SP_RESET;
     cpu.m_a = cpu.m_x = cpu.m_y = cpu.m_status = BYTE_RESET;
-    init_mem();
+    for (unsigned int i = 0; i < MAX_MEMORY; i++)
+        mem.m_data[i] = BYTE_RESET;
+}
+
+int get_instr(char* _buf) {
+    int c, i;
+    for (i = 0; i < ASM_INSTR_BUF_SIZE - 1 && (c = getchar()) != ASM_SEP; i++)
+        _buf[i] = c;
+    _buf[i] = NULL_TERM;
+    return i;
+}
+
+int validate(char* _instr) {
+    // TODO: Implement assembly validation, for now assume everything is just about fine
+    return 1;
+}
+
+void parse_and_execute(char* _instr) {}
+
+void execute() {
+    char instr[ASM_INSTR_BUF_SIZE];
+    while (get_instr(instr) > 0 && validate(instr)) {
+        parse_and_execute(instr);
+    }
 }
 
 int main() {
     reset();
+    execute();
     return 0;
 }
