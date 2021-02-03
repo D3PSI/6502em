@@ -25,9 +25,45 @@ typedef unsigned char byte;
 typedef unsigned short word; // technically only a "half-word" as this is 2 bytes on most platforms instead of 4 bytes
                              // which one would normally call a "word", but that is okay for now
 
+enum instructions {
+    LDA, LDX, LDY,
+    STA, STX, STY,
+    TAX, TAY, TXA,
+    TYA, TSX, TXS,
+    PHA, PHP, PLA,
+    PLP, AND, EOR,
+    ORA, BIT, ADC,
+    SBC, CMP, CMX,
+    CMY, INC, INX,
+    INY, DEC, DEX,
+    DEY, ASL, LSR,
+    ROL, ROR, JMP,
+    JSR, RTS, BCC,
+    BCS, BEQ, BMI,
+    BNE, BPL, BVC,
+    BVS, CLC, CLD,
+    CLI, CLV, SEC,
+    SED, SEI, BRK,
+    NOP, RTI
+};
+
+enum addressing_mode {
+    IMMEDIATE,
+    ZERO_PAGE,
+    ZERO_PAGE_X,
+    ZERO_PAGE_Y,
+    ABSOLUTE,
+    ABSOLUTE_X,
+    ABSOLUTE_Y,
+    INDIRECT,
+    INDIRECT_X,
+    INDIRECT_Y
+};
+
 struct cpu {
     word m_program_counter;
-    word m_stack_pointer;
+    word m_stack_pointer;   // this should actually be half the size of the program counter but whatever
+    // there is no need for an instruction register here as we execute instructions on the fly even if they take more than one cycle
     byte m_a, m_x, m_y;
     byte m_status;
 } cpu;
@@ -57,7 +93,9 @@ int validate(char* _instr) {
     return 1;
 }
 
-void parse_and_execute(char* _instr) {}
+void parse_and_execute(char* _instr) {
+
+}
 
 void execute() {
     char instr[ASM_INSTR_BUF_SIZE];
