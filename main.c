@@ -25,29 +25,7 @@ typedef unsigned char byte;
 typedef unsigned short word; // technically only a "half-word" as this is 2 bytes on most platforms instead of 4 bytes
                              // which one would normally call a "word", but that is okay for now
 
-enum instructions {
-    LDA, LDX, LDY,
-    STA, STX, STY,
-    TAX, TAY, TXA,
-    TYA, TSX, TXS,
-    PHA, PHP, PLA,
-    PLP, AND, EOR,
-    ORA, BIT, ADC,
-    SBC, CMP, CMX,
-    CMY, INC, INX,
-    INY, DEC, DEX,
-    DEY, ASL, LSR,
-    ROL, ROR, JMP,
-    JSR, RTS, BCC,
-    BCS, BEQ, BMI,
-    BNE, BPL, BVC,
-    BVS, CLC, CLD,
-    CLI, CLV, SEC,
-    SED, SEI, BRK,
-    NOP, RTI
-};
-
-enum addressing_mode {
+typedef enum {
     IMMEDIATE,
     ZERO_PAGE,
     ZERO_PAGE_X,
@@ -58,12 +36,13 @@ enum addressing_mode {
     INDIRECT,
     INDIRECT_X,
     INDIRECT_Y
-};
+} addressing_mode;
 
 struct cpu {
     word m_program_counter;
-    word m_stack_pointer;   // this should actually be half the size of the program counter but whatever
-    // there is no need for an instruction register here as we execute instructions on the fly even if they take more than one cycle
+    word m_stack_pointer; // this should actually be half the size of the program counter but whatever
+    // there is no need for an instruction register here as we execute instructions on the fly even if they take more
+    // than one cycle
     byte m_a, m_x, m_y;
     byte m_status;
 } cpu;
@@ -80,7 +59,7 @@ void reset() {
         mem.m_data[i] = BYTE_RESET;
 }
 
-int get_instr(char* _buf) {
+int get_statement(char* _buf) {
     int c, i;
     for (i = 0; i < ASM_INSTR_BUF_SIZE - 1 && (c = getchar()) != ASM_SEP; i++)
         _buf[i] = c;
@@ -88,24 +67,141 @@ int get_instr(char* _buf) {
     return i;
 }
 
-int validate(char* _instr) {
+int validate(char* _statement) {
     // TODO: Implement assembly validation, for now assume everything is just about fine
     return 1;
 }
 
-void parse_and_execute(char* _instr) {
-
+void execute(char* _instruction) {
+    if (!strcmp("LDA", _instruction)) {
+    }
+    if (!strcmp("LDX", _instruction)) {
+    }
+    if (!strcmp("LDY", _instruction)) {
+    }
+    if (!strcmp("STA", _instruction)) {
+    }
+    if (!strcmp("STX", _instruction)) {
+    }
+    if (!strcmp("STY", _instruction)) {
+    }
+    if (!strcmp("TAX", _instruction)) {
+    }
+    if (!strcmp("TAY", _instruction)) {
+    }
+    if (!strcmp("TXA", _instruction)) {
+    }
+    if (!strcmp("TYA", _instruction)) {
+    }
+    if (!strcmp("TSX", _instruction)) {
+    }
+    if (!strcmp("TXS", _instruction)) {
+    }
+    if (!strcmp("PHA", _instruction)) {
+    }
+    if (!strcmp("PHP", _instruction)) {
+    }
+    if (!strcmp("PLA", _instruction)) {
+    }
+    if (!strcmp("PLP", _instruction)) {
+    }
+    if (!strcmp("AND", _instruction)) {
+    }
+    if (!strcmp("EOR", _instruction)) {
+    }
+    if (!strcmp("ORA", _instruction)) {
+    }
+    if (!strcmp("BIT", _instruction)) {
+    }
+    if (!strcmp("ADC", _instruction)) {
+    }
+    if (!strcmp("SBC", _instruction)) {
+    }
+    if (!strcmp("CMP", _instruction)) {
+    }
+    if (!strcmp("CMX", _instruction)) {
+    }
+    if (!strcmp("CMY", _instruction)) {
+    }
+    if (!strcmp("INC", _instruction)) {
+    }
+    if (!strcmp("INX", _instruction)) {
+    }
+    if (!strcmp("INY", _instruction)) {
+    }
+    if (!strcmp("DEC", _instruction)) {
+    }
+    if (!strcmp("DEX", _instruction)) {
+    }
+    if (!strcmp("DEY", _instruction)) {
+    }
+    if (!strcmp("ASL", _instruction)) {
+    }
+    if (!strcmp("LSR", _instruction)) {
+    }
+    if (!strcmp("ROL", _instruction)) {
+    }
+    if (!strcmp("ROR", _instruction)) {
+    }
+    if (!strcmp("JMP", _instruction)) {
+    }
+    if (!strcmp("JSR", _instruction)) {
+    }
+    if (!strcmp("RTS", _instruction)) {
+    }
+    if (!strcmp("BCC", _instruction)) {
+    }
+    if (!strcmp("BCS", _instruction)) {
+    }
+    if (!strcmp("BEQ", _instruction)) {
+    }
+    if (!strcmp("BMI", _instruction)) {
+    }
+    if (!strcmp("BNE", _instruction)) {
+    }
+    if (!strcmp("BPL", _instruction)) {
+    }
+    if (!strcmp("BVC", _instruction)) {
+    }
+    if (!strcmp("BVS", _instruction)) {
+    }
+    if (!strcmp("CLC", _instruction)) {
+    }
+    if (!strcmp("CLD", _instruction)) {
+    }
+    if (!strcmp("CLI", _instruction)) {
+    }
+    if (!strcmp("CLV", _instruction)) {
+    }
+    if (!strcmp("SEC", _instruction)) {
+    }
+    if (!strcmp("SED", _instruction)) {
+    }
+    if (!strcmp("SEI", _instruction)) {
+    }
+    if (!strcmp("BRK", _instruction)) {
+    }
+    if (!strcmp("NOP", _instruction)) {
+    }
+    if (!strcmp("RTI", _instruction)) {
+    }
 }
 
-void execute() {
-    char instr[ASM_INSTR_BUF_SIZE];
-    while (get_instr(instr) > 0 && validate(instr)) {
-        parse_and_execute(instr);
+void parse_and_execute(char* _statement) {
+    // TODO: strip labels etc.
+    // for now we know we only give bare instructions
+    execute(_statement);
+}
+
+void run() {
+    char statement[ASM_INSTR_BUF_SIZE];
+    while (get_statement(statement) > 0 && validate(statement)) {
+        parse_and_execute(statement);
     }
 }
 
 int main() {
     reset();
-    execute();
+    run();
     return 0;
 }
