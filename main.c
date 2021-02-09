@@ -15,6 +15,9 @@
 #define NEGATIVE_FLAG 0x0080
 
 #define INSTR_LDA_IM 0x00A9
+#define INSTR_LDA_ZP 0x00A5
+#define INSTR_LDA_ZPX 0x00B5
+#define INSTR_JSR_AB 0x0020
 
 #define MAX_MEMORY 1024 * 64
 
@@ -70,29 +73,74 @@ void compile_and_load() {
     }
 }
 
-byte fetch() {
+byte fetchm(byte _address) {
+    // TODO: Handle overflow
+    return mem.m_data[_address];
+}
+
+byte writem(byte _address, byte _value) { return mem.m_data[_address] = _value; }
+
+byte fetchb() {
+    // TODO: Handle overflow
     byte data = mem.m_data[cpu.m_program_counter];
     cpu.m_program_counter++;
     return data;
 }
 
+byte writeb(byte _address, byte _value) { return mem.m_data[_address] = _value; }
+
+word fetchw() {
+    // 6502 is little endian
+    word data = fetchm(cpu.m_program_counter++);
+    data |= (fetchm(cpu.m_program_counter++) << 8);
+    // swap bytes here to handle endianness
+    return data;
+}
+
+word writew(byte _address, word _value) {
+    mem.m_data[_address] = _value & 0x00FF;
+    mem.m_data[_address + 1] = (_value >> 8);
+    return _value;
+}
+
+void set_load_accumulator_status() {
+    if (!cpu.m_a)
+        cpu.m_status &= ZERO_FLAG;
+    if (cpu.m_a & 0x0080)
+        cpu.m_status &= NEGATIVE_FLAG;
+}
+
 void interpret(byte _instr) {
     switch (_instr) {
-    case INSTR_LDA_IM:
-        cpu.m_a = fetch();
-        if (!cpu.m_a)
-            cpu.m_status &= ZERO_FLAG;
-        if (cpu.m_a & 0x0080)
-            cpu.m_status &= NEGATIVE_FLAG;
-        break;
-    default:
-        break;
+    case INSTR_LDA_IM: {
+        cpu.m_a = fetchb();
+        set_load_accumulator_status();
+    } break;
+    case INSTR_LDA_ZP: {
+        byte zero_page_address = fetchb();
+        cpu.m_a = fetchm(zero_page_address);
+        set_load_accumulator_status();
+    } break;
+    case INSTR_LDA_ZPX: {
+        byte zero_page_address = fetchb();
+        zero_page_address += cpu.m_x;
+        cpu.m_a = fetchm(zero_page_address);
+        set_load_accumulator_status();
+    } break;
+    case INSTR_JSR_AB: {
+        word sub_addr = fetchw();
+        writew(cpu.m_stack_pointer, cpu.m_program_counter - 1);
+        cpu.m_program_counter = sub_addr;
+        cpu.m_stack_pointer++;
+    } break;
+    default: {
+    } break;
     }
 }
 
 void run() {
     while (1) {
-        byte instr = fetch();
+        byte instr = fetchb();
         interpret(instr);
     }
 }
